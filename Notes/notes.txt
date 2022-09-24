@@ -3,6 +3,7 @@ Simple Ruby on Rails 5 REST API From Scratch:
 
 https://www.youtube.com/watch?v=QojnRc7SS9o
 
+rails new app_name --api
 
 ***************************
 
