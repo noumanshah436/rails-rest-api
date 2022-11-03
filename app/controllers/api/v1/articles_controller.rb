@@ -2,45 +2,58 @@ module Api
   module V1
     class ArticlesController < ApplicationController
       skip_before_action :verify_authenticity_token
-
-      
+      before_action :find_article, only: %i[show update destroy]
 
       def index
-        articles = Article.order('created_at DESC');
-        render json: {status: 'SUCCESS', message:'Loaded articles', data:articles},status: :ok
+        @articles = Article.order('created_at DESC');
+        render json: @articles,status: :ok
       end
 
       def show
-        article = Article.find(params[:id])
-        render json: {status: 'SUCCESS', message:'Loaded article', data:article},status: :ok
+        if @article.nil?
+          render json: nil, status: :not_found
+        else
+          render json: @article, status: :ok
+        end
       end
 
       def create
         article = Article.new(article_params)
 
         if article.save
-          render json: {status: 'SUCCESS', message:'Saved article', data:article},status: :ok
+          render json:article,status: :ok
         else
-          render json: {status: 'ERROR', message:'Article not saved', data:article.errors},status: :unprocessable_entity
+          render json: article.errors, status: :unprocessable_entity
         end
       end
 
       def destroy
-        article = Article.find(params[:id])
-        article.destroy
-        render json: {status: 'SUCCESS', message:'Deleted article', data:article},status: :ok
+        if @article.nil?
+          render json: nil, status: :not_found
+        else
+          @article.destroy
+          render json: @article ,status: :ok
+        end
+
       end
 
       def update
-        article = Article.find(params[:id])
-        if article.update_attributes(article_params)
-          render json: {status: 'SUCCESS', message:'Updated article', data:article},status: :ok
+        if @article.nil?
+          render json: nil, status: :not_found
         else
-          render json: {status: 'ERROR', message:'Article not updated', data:article.errors},status: :unprocessable_entity
+          if @article.update_attributes(article_params)
+            render json: @article, status: :ok
+          else
+            render json: @article.errors , status: :unprocessable_entity
+          end
         end
       end
 
       private
+
+      def find_article
+        @article = Article.find_by(id: params[:id])
+      end
 
       def article_params
         params.permit(:title, :body)

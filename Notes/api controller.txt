@@ -1,0 +1,63 @@
+# frozen_string_literal: true
+
+module Api
+  module V1
+    # Api for PostsController
+    class PostsController < ApiController
+      before_action :find_post, only: %i[show edit update]
+      skip_before_action :verify_authenticity_token
+
+      def index
+        @posts = Post.includes(:user, :likes, :reports, :comments, { image_attachment: [:blob] })
+        render json: @posts
+      end
+
+      def show
+        if @post.nil?
+          render json: nil, status: :not_found
+        else
+          render json: @post, status: :ok
+        end
+      end
+
+      def edit
+        if @post.nil?
+          render json: nil, status: :not_found
+        else
+          render json: @post, status: :ok
+        end
+      end
+
+      def update
+        if @post.update(post_params)
+          render json: @post, status: :ok
+        else
+          render json: @post.errors, status: :unprocessable_entity
+        end
+      end
+
+      private
+
+      def find_post
+        @post = Post.find_by(id: params[:id])
+        return if @post
+
+        flash[:alert] = "Post doesn't exist!"
+        redirect_to root_path
+      end
+
+      def post_params
+        params.require(:post).permit(:title, :text, :user_id, :image)
+      end
+    end
+  end
+end
+
+
+
+
+
+
+
+
+
