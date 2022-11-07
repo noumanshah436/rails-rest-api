@@ -1,7 +1,3 @@
 class ArticleSerializer < ActiveModel::Serializer
-  attributes :id, :title, :body, :created_at, :updated_at, :account
-
-  def account
-    "Nouman"
-  end
+  attributes :id, :title, :body, :created_at, :updated_at
 end
